@@ -1,0 +1,16 @@
+<div>
+  <p><%= @title %></p>
+  <p> <%= @memo %></p>
+</div>
+<div class="d-flex mb-4">
+  <form action="/memos/<%= CGI.escapeHTML(params[:id]) %>/edit" method="get">
+    <input type="submit" value="編集" class="btn btn-primary me-2">
+  </form>
+  <form action="/memos/<%= CGI.escapeHTML(params[:id]) %>" method="post">
+    <input type="hidden" name="_method" value="delete">
+    <input type="submit" value="削除" class="btn btn-primary">
+  </form>
+</div>
+<div>
+  <a class="button" href="/memos">ホームに戻る</a>
+</div>
