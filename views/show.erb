@@ -1,6 +1,6 @@
 <div>
-  <p><%= @title %></p>
-  <p> <%= @memo %></p>
+  <p><%= CGI.escapeHTML(@memo['title']) %></p>
+  <p> <%= CGI.escapeHTML(@memo['memo']) %></p>
 </div>
 <div class="d-flex mb-4">
   <form action="/memos/<%= CGI.escapeHTML(params[:id]) %>/edit" method="get">
