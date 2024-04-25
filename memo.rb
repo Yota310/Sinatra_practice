@@ -14,6 +14,18 @@ def set_memos(file_path, memos)
   File.open(file_path, 'w') { |f| JSON.dump(memos, f) }
 end
 
+require 'sinatra/base'
+
+module Sinatra
+  module HTMLEscapeHelper
+    def h(text)
+      Rack::Utils.escape_html(text)
+    end
+  end
+
+  helpers HTMLEscapeHelper
+end
+
 get '/' do
   redirect '/memos'
 end
@@ -30,7 +42,6 @@ end
 get '/memos/:id' do
   get_memos(FILE_PATH)
   @memo = @memos[params[:id]]
-  p @memo['title']
   erb :show
 end
 
