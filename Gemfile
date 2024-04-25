@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 
 gem 'puma'
 gem 'rackup'
-gem 'redcarpet'
 gem 'sinatra'
 gem 'sinatra-contrib'
 group :development do
