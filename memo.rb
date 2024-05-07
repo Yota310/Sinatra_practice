@@ -3,15 +3,22 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
+require 'pg'
 
 FILE_PATH = 'private/memos.json'
 
-def get_memos(file_path)
-  @memos = JSON.parse(File.read(file_path)).to_h
+def connect_db
+  PG.connect( dbname: 'sinatra', user: 'postgres', password: 'pgpassword')
+end
+def get_memos
+  memos = connect_db
+  @memos = memos.exec("SELECT * from memo")
 end
 
-def set_memos(file_path, memos)
-  File.open(file_path, 'w') { |f| JSON.dump(memos, f) }
+def get_memo()
+  memos = connect_db
+  @memo = memos.exec("SELECT * FROM MEMO WHERE memo_id = '#{params[:id]}'")
+  @memo.values
 end
 
 require 'sinatra/base'
@@ -31,7 +38,7 @@ get '/' do
 end
 
 get '/memos' do
-  get_memos(FILE_PATH)
+  get_memos
   erb :index
 end
 
@@ -40,43 +47,42 @@ get '/memos/new' do
 end
 
 get '/memos/:id' do
-  get_memos(FILE_PATH)
-  @memo = @memos[params[:id]]
+  get_memo
   erb :show
 end
 
 post '/memos' do
   title = params[:title]
   memo = params[:memo]
-
-  get_memos(FILE_PATH)
+  
+  memos = get_memos
   id = 1
-  id = (@memos.keys.map(&:to_i).max + 1).to_s unless @memos.empty?
-  @memos[id] = { title:, memo: }
-  set_memos(FILE_PATH, @memos)
+  id = (memos.column_values(0).map{|n| n.to_i}.max + 1).to_s unless memos.ntuples == 0
+  connect_db.exec("INSERT INTO memo(memo_id,title,memo) VALUES ('#{id}','#{title}', '#{memo}')")
 
   redirect '/memos'
 end
 
 get '/memos/:id/edit' do
-  get_memos(FILE_PATH)
-  @memo = @memos[params[:id]]
+  get_memo
   erb :edit
 end
 
-post '/memos/:id' do
-  get_memos(FILE_PATH)
-  @memo = @memos[params[:id]]
-  @memos[params[:id]] = { title: params[:title], memo: params[:memo] }
-  set_memos(FILE_PATH, @memos)
-
+post '/memos/:id' do # 更新
+  memos = connect_db
+  memos.exec("
+  UPDATE memo
+    SET (title, memo) = ('#{params[:title]}', '#{params[:memo]}' )
+    WHERE memo_id = '#{params[:id]}'
+  ")
   redirect "/memos/#{params[:id]}"
 end
 
 delete '/memos/:id' do
-  get_memos(FILE_PATH)
-  @memos.delete(params[:id])
-  set_memos(FILE_PATH, @memos)
+  memos = connect_db
+  memos.exec("DELETE FROM memo
+  WHERE memo_id = '#{params[:id]}'  
+  ")
 
   redirect '/memos'
 end

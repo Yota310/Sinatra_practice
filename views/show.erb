@@ -1,6 +1,6 @@
 <div>
-  <p><%= h(@memo['title']) %></p>
-  <p> <%= h(@memo['memo']) %></p>
+  <p><%= h(@memo[0]['title']) %></p>
+  <p> <%= h(@memo[0]['memo']) %></p>
 </div>
 <div class="d-flex mb-4">
   <form action="/memos/<%= h(params[:id]) %>/edit" method="get">
