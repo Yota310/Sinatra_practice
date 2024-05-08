@@ -2,11 +2,11 @@
 
 source 'https://rubygems.org'
 
+gem 'pg'
 gem 'puma'
 gem 'rackup'
 gem 'sinatra'
 gem 'sinatra-contrib'
-gem 'pg'
 group :development do
   gem 'erb_lint', require: false
   gem 'rubocop-fjord', require: false
