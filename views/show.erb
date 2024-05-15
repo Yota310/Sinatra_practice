@@ -1,6 +1,6 @@
 <div>
-  <p><%= h(@memo[0]['title']) %></p>
-  <p> <%= h(@memo[0]['memo']) %></p>
+  <p><%= h(@memo[0]['title'].encode(Encoding::UTF_8)) %></p>
+  <p> <%= h(@memo[0]['memo'].encode(Encoding::UTF_8)) %></p>
 </div>
 <div class="d-flex mb-4">
   <form action="/memos/<%= h(params[:id]) %>/edit" method="get">

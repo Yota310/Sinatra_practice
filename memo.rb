@@ -4,21 +4,24 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'pg'
-
 FILE_PATH = 'private/memos.json'
 
 def connect_db
-  PG.connect(dbname: 'sinatra', user: 'postgres', password: 'pgpassword')
+  @dbname = 'sinatra'
+  @user = 'postgres'
+  @password = 'pgpassword'
+  PG.connect(dbname: @dbname, user: @user, password: @password)
 end
 
 def db_to_memos
-  memos = connect_db
-  @memos = memos.exec('SELECT * from memo')
+  connection = connect_db
+  @memos = connection.exec('SELECT * from memo order by memo_id')
 end
 
 def db_to_memo
+  connection = connect_db
   sql = 'SELECT * FROM MEMO WHERE memo_id = $1'
-  @memo = connect_db.exec_params(sql, [params[:id]])
+  @memo = connection.exec_params(sql, [params[:id]])
 end
 
 require 'sinatra/base'
@@ -52,13 +55,14 @@ get '/memos/:id' do
 end
 
 post '/memos' do
+  connection = connect_db
   title = params[:title]
   memo = params[:memo]
-  memos = to_memos
+  memos = db_to_memos
   id = 1
   id = (memos.column_values(0).map(&:to_i).max + 1).to_s unless memos.ntuples.zero?
   sql = 'INSERT INTO memo(memo_id,title,memo) VALUES ($1, $2, $3)'
-  connect_db.exec_params(sql, [id, title, memo])
+  connection.exec_params(sql, [id, title, memo])
   redirect '/memos'
 end
 
@@ -68,14 +72,16 @@ get '/memos/:id/edit' do
 end
 
 post '/memos/:id' do # 更新
+  connection = connect_db
   sql = 'UPDATE memo SET title = $1, memo = $2 WHERE memo_id = $3'
-  connect_db.exec_params(sql, [params[:title], params[:memo], params[:id]])
+  connection.exec_params(sql, [params[:title], params[:memo], params[:id]])
   redirect "/memos/#{params[:id]}"
 end
 
 delete '/memos/:id' do
+  connection = connect_db
   sql = 'DELETE FROM memo WHERE memo_id = $1'
-  connect_db.exec_params(sql, [params[:id]])
+  connection.exec_params(sql, [params[:id]])
 
   redirect '/memos'
 end
