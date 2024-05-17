@@ -15,12 +15,14 @@ end
 def db_to_memos
   connection = connect_db
   @memos = connection.exec('SELECT * from memo order by memo_id')
+  connection.finish
 end
 
 def db_to_memo
   connection = connect_db
   sql = 'SELECT * FROM MEMO WHERE memo_id = $1'
   @memo = connection.exec_params(sql, [params[:id]])
+  connection.finish
 end
 
 require 'sinatra/base'
@@ -57,11 +59,12 @@ post '/memos' do
   connection = connect_db
   title = params[:title]
   memo = params[:memo]
-  memos = db_to_memos
+  db_to_memos
   id = 1
-  id = (memos.column_values(0).map(&:to_i).max + 1).to_s unless memos.ntuples.zero?
+  id = (@memos.column_values(0).map(&:to_i).max + 1).to_s unless @memos.ntuples.zero?
   sql = 'INSERT INTO memo(memo_id,title,memo) VALUES ($1, $2, $3)'
   connection.exec_params(sql, [id, title, memo])
+  connection.finish
   redirect '/memos'
 end
 
@@ -74,6 +77,7 @@ post '/memos/:id' do # 更新
   connection = connect_db
   sql = 'UPDATE memo SET title = $1, memo = $2 WHERE memo_id = $3'
   connection.exec_params(sql, [params[:title], params[:memo], params[:id]])
+  connection.finish
   redirect "/memos/#{params[:id]}"
 end
 
@@ -81,6 +85,6 @@ delete '/memos/:id' do
   connection = connect_db
   sql = 'DELETE FROM memo WHERE memo_id = $1'
   connection.exec_params(sql, [params[:id]])
-
+  connection.finish
   redirect '/memos'
 end
