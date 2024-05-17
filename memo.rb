@@ -4,7 +4,6 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'pg'
-FILE_PATH = 'private/memos.json'
 
 def connect_db
   @dbname = 'sinatra'
