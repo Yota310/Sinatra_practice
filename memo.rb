@@ -6,10 +6,10 @@ require 'json'
 require 'pg'
 
 def connect_db
-  @dbname = 'sinatra'
-  @user = 'postgres'
-  @password = 'pgpassword'
-  PG.connect(dbname: @dbname, user: @user, password: @password)
+  ENV['dbname'] = 'sinatra'
+  ENV['user'] = 'postgres'
+  ENV['password'] = 'pgpassword'
+  PG.connect(dbname: ENV['dbname'], user: ENV['user'], password: ENV['password'])
 end
 
 def db_to_memos
@@ -60,10 +60,8 @@ post '/memos' do
   title = params[:title]
   memo = params[:memo]
   db_to_memos
-  id = 1
-  id = (@memos.column_values(0).map(&:to_i).max + 1).to_s unless @memos.ntuples.zero?
-  sql = 'INSERT INTO memo(memo_id,title,memo) VALUES ($1, $2, $3)'
-  connection.exec_params(sql, [id, title, memo])
+  sql = 'INSERT INTO memo(title,memo) VALUES ($1, $2)'
+  connection.exec_params(sql, [title, memo])
   connection.finish
   redirect '/memos'
 end
