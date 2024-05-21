@@ -6,10 +6,8 @@ require 'json'
 require 'pg'
 
 def connect_db
-  ENV['dbname'] = 'sinatra'
-  ENV['user'] = 'postgres'
-  ENV['password'] = 'pgpassword'
-  PG.connect(dbname: ENV['dbname'], user: ENV['user'], password: ENV['password'])
+  dbname = 'sinatra'
+  PG.connect(dbname: dbname, user: ENV['USER'], password: ENV['PASSWORD'])
 end
 
 def db_to_memos
